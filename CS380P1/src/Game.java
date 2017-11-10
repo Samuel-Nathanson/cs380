@@ -56,7 +56,7 @@ public class Game {
 
 			nodesExplored += 1;
 			closed.add(n);
-			ArrayList<Node> children = getChildrenNotInList(n, closed);
+			ArrayList<Node> children = getChildrenNotInLists(n, closed, open);
 			
 			open.addAll(children);
 			
@@ -72,7 +72,7 @@ public class Game {
 	/*
 	 * Finds all children (possible succeeding states) of Node n that are not in list closed
 	 */
-	ArrayList<Node> getChildrenNotInList(Node n, ArrayList<Node> closed) {
+	ArrayList<Node> getChildrenNotInLists(Node n, ArrayList<Node> closed, ArrayList<Node> open) {
 		ArrayList<Move> moves = getListOfPossibleMoves(n._state);
 		ArrayList<Move> movesForNewState = new ArrayList<Move>(); 
 		ArrayList<Node> children = new ArrayList<Node>();
@@ -81,15 +81,21 @@ public class Game {
 			GameState gs = applyMoveCloning(n._state, moves.get(i));
 			
 			boolean inClosedList = false;
+			boolean inOpenList = false;
 			
 			for(int j = 0; j < closed.size(); j++) {
-				//normalizeState(closed.get(j)._state);
 				if(isStateSame(closed.get(j)._state, gs)) {
 					inClosedList = true;
 					break;
 				}
 			}
-			if(!inClosedList) {
+			for(int j = 0; j < open.size(); j++) {
+				if(isStateSame(open.get(j)._state, gs)) {
+					inOpenList = true;
+					break;
+				}
+			}
+			if(!inClosedList && !inOpenList) {
 				movesForNewState.add(moves.get(i));
 			}
 		}
@@ -661,14 +667,11 @@ public class Game {
 
 	public boolean isStateSame(GameState g0, GameState g1) {
 		
-		/*
 		GameState g0copy = cloneGameState(g0);
 		GameState g1copy = cloneGameState(g1);
 		
 		normalizeState(g0copy);
-		normalizeState(g1copy); */
-		GameState g0copy = g0;
-		GameState g1copy = g1;
+		normalizeState(g1copy); 
 		
 		if(g0copy.getNumRows() != g1copy.getNumRows()) {
 			return false;
